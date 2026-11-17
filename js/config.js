@@ -6,14 +6,22 @@ const RESORT_CONFIG = {
   locationShort: "Wayanad, Kerala",
   address: "Meppadi - Chooralmala Road, Vythiri Taluk, Wayanad, Kerala 673577",
   whatsappNumber: "918606411892", // Country code + number (no +)
-  phoneDisplay: "+91 98765 43210",
+  phoneDisplay: "+91 86064 11892",
   email: "stay@vanamistwayanad.com",
-  mapUrl: "https://maps.google.com/?q=Wayanad,Kerala", // Client's exact Google Maps share link
+  mapUrl: "https://maps.google.com/?q=Wayanad,Kerala",
   checkInTime: "2:00 PM",
   checkOutTime: "11:00 AM",
-  extraChildPrice: 1000, // Per child per night (if it is 0, kids free)
 
-  // Theme Palette (Change these 4 hex codes to rebrand instantly)
+  // CLIENT PRICING ENGINE (Customize per client!)
+  pricing: {
+    showLivePrice: true,   // true = Live total kaanikkum | false = "Custom Quote" mode
+    baseAdultsPerRoom: 2,  // 1 room-il base tariff-il included aaya adults
+    extraAdultPrice: 1200, // Extra adult/mattress charge per night (0 aakkiyaal free)
+    extraChildPrice: 800,  // Extra child charge per night (0 aakkiyaal kids free)
+    gstPercent: 0          // GST venamenkil 12 or 18 kodukkaam
+  },
+
+  // Theme Palette
   theme: {
     forest: "#163024",
     forestLight: "#234736",
@@ -23,7 +31,7 @@ const RESORT_CONFIG = {
     sand: "#F1EDE6"
   },
 
-  // Rooms & Tariffs (Auto-populates Hero Dropdown & Room Cards)
+  // Rooms & Rates
   rooms: [
     {
       id: "cottage",

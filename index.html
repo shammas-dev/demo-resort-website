@@ -133,31 +133,31 @@
         <div id="booking-dock" class="relative z-20 max-w-6xl w-full mx-auto mt-10 reveal">
             <div
                 class="bg-white/95 backdrop-blur-xl rounded-2xl md:rounded-3xl p-5 md:p-6 shadow-2xl border border-white/40">
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 items-end">
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-3.5 lg:gap-4 items-end">
 
-                    <!-- Check-in -->
-                    <div>
+                    <!-- Check-in (2 cols on desktop) -->
+                    <div class="lg:col-span-2">
                         <label for="checkin"
                             class="block text-[11px] font-bold uppercase tracking-wider text-gray-500 mb-1.5">Check-in</label>
-                        <input type="text" id="checkin" placeholder="Select date"
-                            class="w-full bg-sand/70 border border-gray-200 rounded-xl px-3.5 py-2.5 text-sm font-medium text-charcoal focus:outline-none focus:border-forest cursor-pointer" />
+                        <input type="text" id="checkin" placeholder="Select date" readonly
+                            class="w-full bg-sand/70 border border-gray-200 rounded-xl px-3 py-2.5 text-sm font-medium text-charcoal focus:outline-none focus:border-forest cursor-pointer" />
                     </div>
 
-                    <!-- Check-out -->
-                    <div>
+                    <!-- Check-out (2 cols on desktop) -->
+                    <div class="lg:col-span-2">
                         <label for="checkout"
                             class="block text-[11px] font-bold uppercase tracking-wider text-gray-500 mb-1.5">Check-out</label>
-                        <input type="text" id="checkout" placeholder="Select date"
-                            class="w-full bg-sand/70 border border-gray-200 rounded-xl px-3.5 py-2.5 text-sm font-medium text-charcoal focus:outline-none focus:border-forest cursor-pointer" />
+                        <input type="text" id="checkout" placeholder="Select date" readonly
+                            class="w-full bg-sand/70 border border-gray-200 rounded-xl px-3 py-2.5 text-sm font-medium text-charcoal focus:outline-none focus:border-forest cursor-pointer" />
                     </div>
 
-                    <!-- Room Type & Tariff (Populated by config.js) -->
-                    <div>
+                    <!-- Room Type & Rate (3 cols on desktop) -->
+                    <div class="sm:col-span-2 lg:col-span-3">
                         <label for="roomType"
                             class="block text-[11px] font-bold uppercase tracking-wider text-gray-500 mb-1.5">Select
                             Stay</label>
                         <select id="roomType"
-                            class="w-full bg-sand/70 border border-gray-200 rounded-xl px-3.5 py-2.5 text-sm font-semibold text-charcoal focus:outline-none focus:border-forest">
+                            class="w-full bg-sand/70 border border-gray-200 rounded-xl px-3 py-2.5 text-sm font-semibold text-charcoal focus:outline-none focus:border-forest">
                             <option value="4999" data-name="Mist Valley Cottage">Mist Valley Cottage — ₹4,999/nt
                             </option>
                             <option value="7499" data-name="Forest Canopy Villa">Forest Canopy Villa — ₹7,499/nt
@@ -166,28 +166,74 @@
                         </select>
                     </div>
 
-                    <!-- Guests -->
-                    <div>
-                        <label for="guests"
-                            class="block text-[11px] font-bold uppercase tracking-wider text-gray-500 mb-1.5">Guests</label>
-                        <select id="guests"
-                            class="w-full bg-sand/70 border border-gray-200 rounded-xl px-3.5 py-2.5 text-sm font-medium text-charcoal focus:outline-none focus:border-forest">
-                            <option value="2 Adults">2 Adults</option>
-                            <option value="2 Adults, 1 Child">2 Adults, 1 Child</option>
-                            <option value="4 Adults">4 Adults (2 Rooms)</option>
-                            <option value="1 Adult">1 Adult</option>
-                        </select>
+                    <!-- Guests & Rooms Inline Stepper (3 cols on desktop) -->
+                    <div class="sm:col-span-2 lg:col-span-3">
+                        <label class="block text-[11px] font-bold uppercase tracking-wider text-gray-500 mb-1.5">Guests
+                            & Rooms</label>
+                        <div class="grid grid-cols-3 gap-1.5">
+                            <!-- Adults -->
+                            <div
+                                class="bg-sand/70 border border-gray-200 rounded-xl px-1.5 py-1.5 flex flex-col items-center justify-center">
+                                <span
+                                    class="text-[9px] font-bold uppercase tracking-wide text-gray-500 mb-0.5">Adults</span>
+                                <div class="flex items-center gap-1">
+                                    <button type="button" onclick="updateCount('adults', -1)"
+                                        aria-label="Decrease adults"
+                                        class="w-5 h-5 rounded-md bg-white border border-gray-200 text-forest font-bold text-xs flex items-center justify-center hover:bg-forest hover:text-white transition cursor-pointer">−</button>
+                                    <span id="adultCount"
+                                        class="w-4 text-center text-xs font-bold text-charcoal tabular-nums">2</span>
+                                    <button type="button" onclick="updateCount('adults', 1)"
+                                        aria-label="Increase adults"
+                                        class="w-5 h-5 rounded-md bg-white border border-gray-200 text-forest font-bold text-xs flex items-center justify-center hover:bg-forest hover:text-white transition cursor-pointer">+</button>
+                                </div>
+                            </div>
+
+                            <!-- Kids -->
+                            <div
+                                class="bg-sand/70 border border-gray-200 rounded-xl px-1.5 py-1.5 flex flex-col items-center justify-center">
+                                <span
+                                    class="text-[9px] font-bold uppercase tracking-wide text-gray-500 mb-0.5">Kids</span>
+                                <div class="flex items-center gap-1">
+                                    <button type="button" onclick="updateCount('children', -1)"
+                                        aria-label="Decrease kids"
+                                        class="w-5 h-5 rounded-md bg-white border border-gray-200 text-forest font-bold text-xs flex items-center justify-center hover:bg-forest hover:text-white transition cursor-pointer">−</button>
+                                    <span id="childCount"
+                                        class="w-4 text-center text-xs font-bold text-charcoal tabular-nums">0</span>
+                                    <button type="button" onclick="updateCount('children', 1)"
+                                        aria-label="Increase kids"
+                                        class="w-5 h-5 rounded-md bg-white border border-gray-200 text-forest font-bold text-xs flex items-center justify-center hover:bg-forest hover:text-white transition cursor-pointer">+</button>
+                                </div>
+                            </div>
+
+                            <!-- Rooms -->
+                            <div
+                                class="bg-sand/70 border border-gray-200 rounded-xl px-1.5 py-1.5 flex flex-col items-center justify-center">
+                                <span
+                                    class="text-[9px] font-bold uppercase tracking-wide text-gray-500 mb-0.5">Rooms</span>
+                                <div class="flex items-center gap-1">
+                                    <button type="button" onclick="updateCount('rooms', -1)" aria-label="Decrease rooms"
+                                        class="w-5 h-5 rounded-md bg-white border border-gray-200 text-forest font-bold text-xs flex items-center justify-center hover:bg-forest hover:text-white transition cursor-pointer">−</button>
+                                    <span id="roomCount"
+                                        class="w-4 text-center text-xs font-bold text-charcoal tabular-nums">1</span>
+                                    <button type="button" onclick="updateCount('rooms', 1)" aria-label="Increase rooms"
+                                        class="w-5 h-5 rounded-md bg-white border border-gray-200 text-forest font-bold text-xs flex items-center justify-center hover:bg-forest hover:text-white transition cursor-pointer">+</button>
+                                </div>
+                            </div>
+                        </div>
+                        <input type="hidden" id="guests" value="2 Adults, 1 Room" />
                     </div>
 
-                    <!-- Live Estimate + WhatsApp CTA -->
-                    <div class="sm:col-span-2 lg:col-span-1 flex flex-col justify-between">
-                        <div class="flex items-baseline justify-between mb-1.5 px-1">
-                            <span id="nightsLabel" class="text-xs font-medium text-gray-500">1 Night Est.</span>
-                            <span id="totalPrice" class="text-lg font-bold text-forest tabular-nums">₹4,999</span>
+                    <!-- Live Estimate + WhatsApp CTA (2 cols on desktop) -->
+                    <div class="sm:col-span-2 lg:col-span-2 flex flex-col justify-between">
+                        <div class="flex items-baseline justify-between mb-1 px-0.5 gap-1">
+                            <span id="nightsLabel" class="text-[11px] font-medium text-gray-500 truncate">1 Night • 1
+                                Room</span>
+                            <span id="totalPrice"
+                                class="text-base font-bold text-forest tabular-nums shrink-0">₹4,999</span>
                         </div>
                         <button onclick="bookViaWhatsApp()"
-                            class="w-full bg-forest hover:bg-forestLight text-white font-semibold text-sm py-3 px-4 rounded-xl transition flex items-center justify-center gap-2 shadow-md cursor-pointer">
-                            <span>Book via WhatsApp</span>
+                            class="w-full bg-forest hover:bg-forestLight text-white font-semibold text-xs xl:text-sm py-3 px-3 rounded-xl transition flex items-center justify-center gap-1.5 shadow-md cursor-pointer whitespace-nowrap">
+                            <span id="bookingCtaText">Book via WhatsApp</span>
                             <span>→</span>
                         </button>
                     </div>
@@ -351,8 +397,9 @@
                     </div>
                 </div>
             </div>
+        </div>
 
-            <!-- View All Rooms CTA -->
+        <!-- View All Rooms CTA -->
             <div class="mt-12 text-center reveal">
                 <div
                     class="inline-flex flex-col sm:flex-row items-center gap-4 bg-sand/80 border border-gray-200/80 px-6 py-4 rounded-2xl">
@@ -367,7 +414,6 @@
                 </div>
             </div>
 
-        </div>
     </section>
 
     <!-- ================= THE VIBE / STORY SECTION ================= -->
