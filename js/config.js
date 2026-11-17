@@ -8,6 +8,7 @@ const RESORT_CONFIG = {
   whatsappNumber: "918606411892", // Country code + number (no +)
   phoneDisplay: "+91 98765 43210",
   email: "stay@vanamistwayanad.com",
+  mapUrl: "https://maps.google.com/?q=Wayanad,Kerala", // Client's exact Google Maps share link
   checkInTime: "2:00 PM",
   checkOutTime: "11:00 AM",
 
