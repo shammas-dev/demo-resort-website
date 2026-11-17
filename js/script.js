@@ -1,4 +1,4 @@
-const WHATSAPP_NUMBER = typeof RESORT_CONFIG !== "undefined" ? RESORT_CONFIG.whatsappNumber : "919876543210";
+const WHATSAPP_NUMBER = typeof RESORT_CONFIG !== "undefined" ? RESORT_CONFIG.whatsappNumber : "918606411892";
 const RESORT_NAME = typeof RESORT_CONFIG !== "undefined" ? RESORT_CONFIG.brandName : "Vana Mist Resort";
 
 // DOM Elements
@@ -11,19 +11,19 @@ const totalPriceEl = document.getElementById("totalPrice");
 const navbar = document.getElementById("navbar");
 
 let checkinPicker, checkoutPicker;
+let adultGuests = 2;
+let childGuests = 0;
 
 // 1. Apply Config Data Across All Pages
 function applyResortConfig() {
   if (typeof RESORT_CONFIG === "undefined") return;
 
-  // Apply CSS Theme Variables
   const root = document.documentElement;
   root.style.setProperty("--color-forest", RESORT_CONFIG.theme.forest);
   root.style.setProperty("--color-forest-light", RESORT_CONFIG.theme.forestLight);
   root.style.setProperty("--color-gold", RESORT_CONFIG.theme.gold);
   root.style.setProperty("--color-gold-hover", RESORT_CONFIG.theme.goldHover);
 
-  // Update Brand Text Elements
   document.querySelectorAll("[data-brand-name]").forEach((el) => (el.textContent = RESORT_CONFIG.brandName));
   document.querySelectorAll("[data-short-name]").forEach((el) => (el.textContent = RESORT_CONFIG.shortName));
   document.querySelectorAll("[data-logo-initial]").forEach((el) => (el.textContent = RESORT_CONFIG.logoInitial));
@@ -31,7 +31,17 @@ function applyResortConfig() {
   document.querySelectorAll("[data-phone]").forEach((el) => (el.textContent = RESORT_CONFIG.phoneDisplay));
   document.querySelectorAll("[data-email]").forEach((el) => (el.textContent = RESORT_CONFIG.email));
 
-  // Update Starting Price & Room Dropdown
+  // Sync Floating Map & WhatsApp Buttons
+  const mapBtn = document.getElementById("floatingMapBtn");
+  if (mapBtn && RESORT_CONFIG.mapUrl) {
+    mapBtn.href = RESORT_CONFIG.mapUrl;
+  }
+
+  const waBtn = document.getElementById("floatingWhatsappBtn");
+  if (waBtn && RESORT_CONFIG.whatsappNumber) {
+    waBtn.href = `https://wa.me/${RESORT_CONFIG.whatsappNumber}?text=${encodeURIComponent(`Hi ${RESORT_CONFIG.brandName}! I have a query.`)}`;
+  }
+
   if (RESORT_CONFIG.rooms && RESORT_CONFIG.rooms.length > 0) {
     const minPrice = Math.min(...RESORT_CONFIG.rooms.map((r) => r.price));
     document.querySelectorAll("[data-starting-price]").forEach((el) => {
@@ -56,7 +66,45 @@ function toggleMobileMenu() {
   menu.classList.toggle("hidden");
 }
 
-// 3. Initialize Flatpickr Dates in day/month(short)/year format (e.g., 18/Nov/2026)
+// 3. Interactive Guest Counter (+ / - Popover)
+function toggleGuestPopover() {
+  const popover = document.getElementById("guestPopover");
+  if (popover) popover.classList.toggle("hidden");
+}
+
+function updateGuestCount(type, delta) {
+  if (type === "adults") {
+    adultGuests = Math.max(1, Math.min(20, adultGuests + delta));
+    const adultEl = document.getElementById("adultCount");
+    if (adultEl) adultEl.textContent = adultGuests;
+  } else {
+    childGuests = Math.max(0, Math.min(10, childGuests + delta));
+    const childEl = document.getElementById("childCount");
+    if (childEl) childEl.textContent = childGuests;
+  }
+
+  let summary = `${adultGuests} Adult${adultGuests > 1 ? "s" : ""}`;
+  if (childGuests > 0) {
+    summary += `, ${childGuests} Child${childGuests > 1 ? "ren" : ""}`;
+  }
+
+  const summaryEl = document.getElementById("guestSummary");
+  if (summaryEl) summaryEl.textContent = summary;
+  if (guestsSelect) guestsSelect.value = summary;
+
+  calculateTotal();
+}
+
+// Close guest popover when clicking outside
+document.addEventListener("click", (e) => {
+  const popover = document.getElementById("guestPopover");
+  const trigger = document.getElementById("guestTrigger");
+  if (popover && trigger && !popover.contains(e.target) && !trigger.contains(e.target)) {
+    popover.classList.add("hidden");
+  }
+});
+
+// 4. Initialize Flatpickr Dates in day/month(short)/year format (e.g., 18/Nov/2026)
 function initDefaultDates() {
   if (!checkinInput || !checkoutInput || typeof flatpickr === "undefined") return;
 
@@ -99,13 +147,17 @@ function initDefaultDates() {
   calculateTotal();
 }
 
-// 4. Live Night & Rate Calculator
+// 5. Dynamic Night, Room & Guest Rate Calculator
 function calculateTotal() {
   if (!checkinPicker || !checkoutPicker || !roomTypeSelect) return;
 
   const checkinDate = checkinPicker.selectedDates[0];
   const checkoutDate = checkoutPicker.selectedDates[0];
   const perNightRate = parseInt(roomTypeSelect.value, 10) || 4999;
+  const childRate =
+    typeof RESORT_CONFIG !== "undefined" && RESORT_CONFIG.extraChildPrice !== undefined
+      ? RESORT_CONFIG.extraChildPrice
+      : 1000;
 
   let nights = 1;
   if (checkinDate && checkoutDate && checkoutDate > checkinDate) {
@@ -113,12 +165,21 @@ function calculateTotal() {
     nights = Math.round(diffTime / (1000 * 60 * 60 * 24));
   }
 
-  const total = nights * perNightRate;
-  nightsLabel.textContent = `${nights} Night${nights > 1 ? "s" : ""} Est.`;
-  totalPriceEl.textContent = `₹${total.toLocaleString("en-IN")}`;
+  // 2 Adults per room automatically scales rooms; children add extraChildPrice per night
+  const roomsNeeded = Math.max(1, Math.ceil(adultGuests / 2));
+  const roomTotal = nights * perNightRate * roomsNeeded;
+  const childTotal = nights * childRate * childGuests;
+  const grandTotal = roomTotal + childTotal;
+
+  let labelParts = [`${nights} Night${nights > 1 ? "s" : ""}`];
+  if (roomsNeeded > 1) labelParts.push(`${roomsNeeded} Rooms`);
+  if (childGuests > 0 && childRate > 0) labelParts.push(`+${childGuests} Kid${childGuests > 1 ? "s" : ""}`);
+
+  if (nightsLabel) nightsLabel.textContent = labelParts.join(" • ");
+  if (totalPriceEl) totalPriceEl.textContent = `₹${grandTotal.toLocaleString("en-IN")}`;
 }
 
-// 5. One-Tap Room Selection from Cards
+// 6. One-Tap Room Selection from Cards
 function selectRoomAndScroll(rateValue) {
   if (!roomTypeSelect) return;
   roomTypeSelect.value = rateValue;
@@ -129,7 +190,7 @@ function selectRoomAndScroll(rateValue) {
   }
 }
 
-// 6. Home Page Booking Dock -> WhatsApp
+// 7. Home Page Booking Dock -> WhatsApp
 function bookViaWhatsApp() {
   if (!roomTypeSelect) {
     window.open(
@@ -144,28 +205,29 @@ function bookViaWhatsApp() {
   const rate = parseInt(roomTypeSelect.value, 10).toLocaleString("en-IN");
   const checkin = checkinInput.value || "Flexible";
   const checkout = checkoutInput.value || "Flexible";
-  const guests = guestsSelect.value;
+  const guests = guestsSelect ? guestsSelect.value : `${adultGuests} Adults`;
   const estimate = totalPriceEl.textContent;
-  const nightsText = nightsLabel.textContent.replace(" Est.", "");
+  const roomsNeeded = Math.max(1, Math.ceil(adultGuests / 2));
+  const summaryMeta = nightsLabel.textContent;
 
-  const message = `Hi ${RESORT_NAME}! I'd like to check availability & book:\n\n• *Stay:* ${roomName} (₹${rate}/night)\n• *Check-in:* ${checkin}\n• *Check-out:* ${checkout} (${nightsText})\n• *Guests:* ${guests}\n• *Estimated Total:* ${estimate} (Incl. Breakfast)`;
+  const message = `Hi ${RESORT_NAME}! I'd like to check availability & book:\n\n• *Stay:* ${roomName} × ${roomsNeeded} Room${roomsNeeded > 1 ? "s" : ""} (₹${rate}/nt)\n• *Check-in:* ${checkin}\n• *Check-out:* ${checkout}\n• *Summary:* ${summaryMeta}\n• *Guests:* ${guests}\n• *Estimated Total:* ${estimate} (Incl. Breakfast)`;
 
   window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`, "_blank");
 }
 
-// 7. Quick Room Book from rooms.html
+// 8. Quick Room Book from rooms.html
 function quickBookRoom(roomName, rate) {
   const message = `Hi ${RESORT_NAME}! I'm interested in booking the *${roomName}* (₹${rate.toLocaleString("en-IN")}/night). Please share availability for my dates.`;
   window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`, "_blank");
 }
 
-// 8. Quick Package Book from contact.html
+// 9. Quick Package Book from contact.html
 function quickBookPackage(packageName, price) {
   const message = `Hi ${RESORT_NAME}! I'd like to enquire about the *${packageName}* (${price}). Please share package availability.`;
   window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`, "_blank");
 }
 
-// 9. Custom Enquiry Form on contact.html
+// 10. Custom Enquiry Form on contact.html
 function submitCustomEnquiry(event) {
   event.preventDefault();
   const name = document.getElementById("enqName").value;
@@ -177,7 +239,7 @@ function submitCustomEnquiry(event) {
   window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`, "_blank");
 }
 
-// 10. Gallery Filter Logic (gallery.html)
+// 11. Gallery Filter Logic (gallery.html)
 const filterButtons = document.querySelectorAll(".filter-btn");
 const galleryItems = document.querySelectorAll(".gallery-item");
 
@@ -197,7 +259,7 @@ filterButtons.forEach((btn) => {
   });
 });
 
-// 11. Lightbox Modal (gallery.html)
+// 12. Lightbox Modal (gallery.html)
 function openLightbox(element) {
   const modal = document.getElementById("lightboxModal");
   const img = element.querySelector("img");
@@ -217,14 +279,14 @@ function closeLightbox() {
   modal.classList.remove("flex");
 }
 
-// 12. Sticky Navbar on Scroll
+// 13. Sticky Navbar on Scroll
 if (navbar) {
   window.addEventListener("scroll", () => {
     navbar.classList.toggle("navbar-scrolled", window.scrollY > 50);
   });
 }
 
-// 13. Scroll Reveal Observer
+// 14. Scroll Reveal Observer
 const revealObserver = new IntersectionObserver(
   (entries) => {
     entries.forEach((entry) => {

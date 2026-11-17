@@ -11,6 +11,7 @@ const RESORT_CONFIG = {
   mapUrl: "https://maps.google.com/?q=Wayanad,Kerala", // Client's exact Google Maps share link
   checkInTime: "2:00 PM",
   checkOutTime: "11:00 AM",
+  extraChildPrice: 1000, // Per child per night (if it is 0, kids free)
 
   // Theme Palette (Change these 4 hex codes to rebrand instantly)
   theme: {
