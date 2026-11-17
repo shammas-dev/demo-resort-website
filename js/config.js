@@ -5,7 +5,7 @@ const RESORT_CONFIG = {
   tagline: "Where the Mist Meets the Forest Canopy",
   locationShort: "Wayanad, Kerala",
   address: "Meppadi - Chooralmala Road, Vythiri Taluk, Wayanad, Kerala 673577",
-  whatsappNumber: "919876543210", // Country code + number (no +)
+  whatsappNumber: "918606411892", // Country code + number (no +)
   phoneDisplay: "+91 98765 43210",
   email: "stay@vanamistwayanad.com",
   checkInTime: "2:00 PM",
