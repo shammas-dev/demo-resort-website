@@ -1,0 +1,49 @@
+:root {
+  --color-forest: #163024;
+  --color-forest-light: #234736;
+  --color-gold: #C88A55;
+  --color-gold-hover: #B57743;
+  --color-alabaster: #FAF8F5;
+  --color-sand: #F1EDE6;
+}
+
+/* Slow Ken Burns Hero Zoom */
+@keyframes kenBurnsZoom {
+  0% {
+    transform: scale(1);
+  }
+  100% {
+    transform: scale(1.12);
+  }
+}
+
+.ken-burns {
+  animation: kenBurnsZoom 18s ease-in-out infinite alternate;
+}
+
+/* Navbar Scrolled State */
+.navbar-scrolled {
+  background-color: rgba(22, 48, 36, 0.95);
+  backdrop-filter: blur(12px);
+  padding-top: 0.75rem;
+  padding-bottom: 0.75rem;
+  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.3);
+}
+
+/* Smooth Scroll Reveal Animation */
+.reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.8s cubic-bezier(0.22, 1, 0.36, 1),
+              transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.reveal.active {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Mobile Menu Drawer Transition */
+#mobileMenu {
+  transition: max-height 0.35s ease, opacity 0.3s ease;
+}

@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Packages & Contact | Vana Mist Resort Wayanad</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
+        rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        alabaster: '#FAF8F5',
+                        sand: '#F1EDE6',
+                        forest: '#163024',
+                        forestLight: '#234736',
+                        gold: '#C88A55',
+                        goldHover: '#B57743',
+                        charcoal: '#1C1C1C',
+                    },
+                    fontFamily: {
+                        serif: ['"Cormorant Garamond"', 'serif'],
+                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+                    },
+                },
+            },
+        };
+    </script>
+    <link rel="stylesheet" href="css/style.css" />
+</head>
+
+<body class="bg-alabaster text-charcoal font-sans antialiased">
+
+    <!-- NAVBAR -->
+    <header class="sticky top-0 z-50 bg-forest/95 backdrop-blur-md py-4 px-5 md:px-12 text-white shadow-md">
+        <div class="max-w-7xl mx-auto flex items-center justify-between">
+            <a href="index.html" class="flex items-center gap-2">
+                <span
+                    class="w-8 h-8 rounded-full bg-gold flex items-center justify-center text-white font-serif font-bold text-lg">V</span>
+                <span class="font-serif text-2xl md:text-3xl font-semibold tracking-wide">Vana Mist</span>
+            </a>
+            <nav class="hidden md:flex items-center gap-8 text-sm font-medium">
+                <a href="index.html" class="hover:text-gold transition">Home</a>
+                <a href="rooms.html" class="hover:text-gold transition">Rooms & Tariffs</a>
+                <a href="gallery.html" class="hover:text-gold transition">Gallery</a>
+                <a href="contact.html" class="text-gold font-semibold">Packages & Contact</a>
+            </nav>
+            <a href="index.html#booking-dock"
+                class="bg-gold hover:bg-goldHover text-white text-sm font-semibold px-5 py-2.5 rounded-full transition">
+                Book Direct
+            </a>
+        </div>
+    </header>
+
+    <!-- HEADER -->
+    <section class="bg-forest text-alabaster py-16 px-5 md:px-12 text-center">
+        <span class="text-gold text-xs font-bold uppercase tracking-widest">Curated Escapes & Directions</span>
+        <h1 class="font-serif text-4xl md:text-6xl font-semibold mt-2">Packages & Reservations</h1>
+    </section>
+
+    <main class="max-w-7xl mx-auto py-16 px-5 md:px-12 space-y-20">
+
+        <!-- SPECIAL PACKAGES -->
+        <section>
+            <h2 class="font-serif text-3xl md:text-4xl font-semibold text-forest mb-8">Seasonal & Honeymoon Packages
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div class="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm flex flex-col justify-between">
+                    <div>
+                        <span class="bg-gold/15 text-gold text-xs font-bold px-3 py-1 rounded-full">2 Nights / 3
+                            Days</span>
+                        <h3 class="font-serif text-3xl font-semibold text-forest mt-4">Misty Honeymoon Escape</h3>
+                        <p class="text-2xl font-bold text-charcoal mt-2 tabular-nums">₹23,999 <span
+                                class="text-xs font-normal text-gray-500">per couple (All-Inclusive)</span></p>
+                        <ul class="mt-4 space-y-2 text-sm text-gray-600">
+                            <li>• 2 Nights in Private Plunge Pool Suite</li>
+                            <li>• Flower bed decor & honeymoon cake on arrival</li>
+                            <li>• Private candlelight gazebo dinner (1 night)</li>
+                            <li>• Couple Ayurveda relaxation massage (45 mins)</li>
+                        </ul>
+                    </div>
+                    <button onclick="quickBookPackage('Misty Honeymoon Escape (2N/3D)', '₹23,999')"
+                        class="mt-6 w-full bg-forest hover:bg-forestLight text-white font-semibold text-sm py-3 rounded-xl transition cursor-pointer">
+                        Enquire Package on WhatsApp →
+                    </button>
+                </div>
+
+                <div class="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm flex flex-col justify-between">
+                    <div>
+                        <span class="bg-sand text-forest text-xs font-bold px-3 py-1 rounded-full">2 Nights / 3
+                            Days</span>
+                        <h3 class="font-serif text-3xl font-semibold text-forest mt-4">Wayanad Family Retreat</h3>
+                        <p class="text-2xl font-bold text-charcoal mt-2 tabular-nums">₹16,499 <span
+                                class="text-xs font-normal text-gray-500">for 2 Adults + 2 Kids</span></p>
+                        <ul class="mt-4 space-y-2 text-sm text-gray-600">
+                            <li>• 2 Nights in Forest Canopy Villa</li>
+                            <li>• Daily breakfast & traditional Malabar dinner</li>
+                            <li>• Guided tea estate walk & private campfire night</li>
+                            <li>• Complimentary pickup from Kalpetta bus stand</li>
+                        </ul>
+                    </div>
+                    <button onclick="quickBookPackage('Wayanad Family Retreat (2N/3D)', '₹16,499')"
+                        class="mt-6 w-full bg-forest hover:bg-forestLight text-white font-semibold text-sm py-3 rounded-xl transition cursor-pointer">
+                        Enquire Package on WhatsApp →
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- MAP & DIRECT ENQUIRY FORM -->
+        <section class="grid grid-cols-1 lg:grid-cols-2 gap-10 items-start">
+            <!-- Map & Info -->
+            <div class="space-y-6">
+                <h2 class="font-serif text-3xl font-semibold text-forest">How to Reach Us</h2>
+                <div class="rounded-3xl overflow-hidden shadow-sm border border-gray-200 h-72">
+                    <iframe
+                        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d125042.34525343757!2d76.0468!3d11.6103!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3ba60cf91a9c5f0d%3A0x71dd4da2e1d3e46f!2sWayanad%2C%20Kerala!5e0!3m2!1sen!2sin!4v1700000000000"
+                        width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy">
+                    </iframe>
+                </div>
+                <div class="bg-sand/70 p-6 rounded-2xl text-sm space-y-2">
+                    <p><strong>Address:</strong> Meppadi - Chooralmala Road, Vythiri, Wayanad, Kerala 673577</p>
+                    <p><strong>Reservations Desk:</strong> +91 98765 43210 (9:00 AM – 9:00 PM)</p>
+                    <p><strong>Nearest Airport:</strong> Calicut International Airport (CCJ) — 95 km</p>
+                </div>
+            </div>
+
+            <!-- Custom Enquiry Form -->
+            <div class="bg-white p-8 rounded-3xl shadow-sm border border-gray-100">
+                <h2 class="font-serif text-3xl font-semibold text-forest mb-2">Custom Group / Event Enquiry</h2>
+                <p class="text-sm text-gray-500 mb-6">Planning a family gathering, corporate offsite, or custom stay?
+                    Send details directly to our reservations manager.</p>
+                <form onsubmit="submitCustomEnquiry(event)" class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-gray-500 mb-1">Your Name</label>
+                        <input type="text" id="enqName" required placeholder="e.g. Rahul Menon"
+                            class="w-full bg-sand/60 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-forest" />
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold uppercase text-gray-500 mb-1">Preferred Month /
+                                Dates</label>
+                            <input type="text" id="enqDates" required placeholder="e.g. Dec 20 - 22"
+                                class="w-full bg-sand/60 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-forest" />
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold uppercase text-gray-500 mb-1">Total Guests</label>
+                            <input type="text" id="enqGuests" required placeholder="e.g. 6 Adults, 2 Kids"
+                                class="w-full bg-sand/60 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-forest" />
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-gray-500 mb-1">Special Requests</label>
+                        <textarea id="enqNotes" rows="3" placeholder="Need campfire, extra beds, cab pickup..."
+                            class="w-full bg-sand/60 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-forest"></textarea>
+                    </div>
+                    <button type="submit"
+                        class="w-full bg-gold hover:bg-goldHover text-white font-semibold text-sm py-3.5 rounded-xl transition cursor-pointer shadow-md">
+                        Send Enquiry via WhatsApp →
+                    </button>
+                </form>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="bg-forest text-alabaster py-8 px-5 text-center text-xs text-white/60">
+        <p>© 2026 Vana Mist Resort, Wayanad • Direct Booking Engine</p>
+    </footer>
+
+    <script src="js/config.js"></script>
+    <script src="js/script.js"></script>
+</body>
+
+</html>
