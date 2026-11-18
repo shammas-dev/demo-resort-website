@@ -245,6 +245,12 @@ function bookViaWhatsApp() {
   window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`, "_blank");
 }
 
+// General WhatsApp Enquiry (No room/price details — used in Footer)
+function openGeneralWhatsApp() {
+  const message = `Hi ${RESORT_NAME}! I have a booking enquiry.`;
+  window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`, "_blank");
+}
+
 // 8. Quick Room Book from rooms.html (Always includes rate)
 function quickBookRoom(roomName, rate) {
   const message = `Hi ${RESORT_NAME}! I'm interested in booking the *${roomName}* (₹${rate.toLocaleString("en-IN")}/night). Please share availability & best offer for my dates.`;
