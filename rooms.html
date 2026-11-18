@@ -19,6 +19,7 @@
 
     <!-- Config + theme run here so colours are correct before first paint -->
     <script src="js/config.js"></script>
+    <script src="js/templates.js"></script>
     <script src="js/theme.js"></script>
 </head>
 <body class="bg-alabaster text-charcoal font-sans antialiased">
@@ -31,7 +32,7 @@
         <p data-cfg="pages.rooms.intro" class="text-white/75 text-sm md:text-base max-w-xl mx-auto mt-3"></p>
     </section>
 
-    <main class="max-w-7xl mx-auto py-16 px-5 md:px-12 space-y-20">
+    <main id="main" class="max-w-7xl mx-auto py-16 px-5 md:px-12 space-y-20">
         <div id="roomsList" class="space-y-20"></div>
         <section class="bg-white rounded-3xl p-6 md:p-10 shadow-sm border border-gray-100 reveal">
             <h2 class="font-serif text-3xl font-semibold text-forest mb-6">Compare Stays at a Glance</h2>
@@ -43,7 +44,6 @@
     <div id="site-floating"></div>
 
     <script src="js/components.js"></script>
-    <script src="js/sections.js"></script>
     <script src="js/script.js"></script>
 </body>
 

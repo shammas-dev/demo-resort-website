@@ -20,6 +20,7 @@
 
     <!-- Config + theme run here so colours are correct before first paint -->
     <script src="js/config.js"></script>
+    <script src="js/templates.js"></script>
     <script src="js/theme.js"></script>
 </head>
 
@@ -27,11 +28,11 @@
 
     <div id="site-header" data-variant="overlay"></div>
 
-    <main>
+    <main id="main">
     <!-- HERO + BOOKING DOCK -->
-    <section class="relative min-h-screen flex flex-col justify-between pt-28 pb-10 px-5 md:px-12 overflow-hidden">
+    <section class="relative min-h-[100svh] flex flex-col justify-between pt-28 pb-10 px-5 md:px-12 overflow-hidden">
         <div class="absolute inset-0 z-0 overflow-hidden">
-            <img data-cfg-src="hero.image" data-w="2000" data-cfg-alt="hero.imageAlt" src="" alt="" class="w-full h-full object-cover ken-burns" />
+            <img data-cfg-src="hero.image" data-w="2000" data-cfg-alt="hero.imageAlt" src="" alt="" fetchpriority="high" class="w-full h-full object-cover ken-burns" />
             <div class="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-forest/95"></div>
         </div>
 
@@ -76,53 +77,53 @@
                     <div class="sm:col-span-2 lg:col-span-3">
                         <label class="block text-[11px] font-bold uppercase tracking-wider text-gray-500 mb-1.5">Guests
                             & Rooms</label>
-                        <div class="grid grid-cols-3 gap-1.5">
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-1.5">
                             <!-- Adults -->
                             <div
-                                class="bg-sand/70 border border-gray-200 rounded-xl px-1.5 py-1.5 flex flex-col items-center justify-center">
+                                class="bg-sand/70 border border-gray-200 rounded-xl px-3 sm:px-1.5 py-1.5 flex flex-row sm:flex-col items-center justify-between sm:justify-center">
                                 <span
-                                    class="text-[9px] font-bold uppercase tracking-wide text-gray-500 mb-0.5">Adults</span>
-                                <div class="flex items-center gap-1">
+                                    class="text-xs sm:text-[10px] font-bold uppercase tracking-wide text-gray-600 sm:mb-0.5">Adults</span>
+                                <div class="flex items-center gap-2 lg:gap-1">
                                     <button type="button" onclick="updateCount('adults', -1)"
                                         aria-label="Decrease adults"
-                                        class="w-5 h-5 rounded-md bg-white border border-gray-200 text-forest font-bold text-xs flex items-center justify-center hover:bg-forest hover:text-white transition cursor-pointer">−</button>
+                                        class="w-10 h-10 sm:w-9 sm:h-9 lg:w-6 lg:h-6 rounded-lg bg-white border border-gray-200 text-forest font-bold text-base lg:text-xs flex items-center justify-center hover:bg-forest hover:text-white transition cursor-pointer">−</button>
                                     <span id="adultCount"
-                                        class="w-4 text-center text-xs font-bold text-charcoal tabular-nums">2</span>
+                                        class="w-6 lg:w-4 text-center text-base lg:text-xs font-bold text-charcoal tabular-nums">2</span>
                                     <button type="button" onclick="updateCount('adults', 1)"
                                         aria-label="Increase adults"
-                                        class="w-5 h-5 rounded-md bg-white border border-gray-200 text-forest font-bold text-xs flex items-center justify-center hover:bg-forest hover:text-white transition cursor-pointer">+</button>
+                                        class="w-10 h-10 sm:w-9 sm:h-9 lg:w-6 lg:h-6 rounded-lg bg-white border border-gray-200 text-forest font-bold text-base lg:text-xs flex items-center justify-center hover:bg-forest hover:text-white transition cursor-pointer">+</button>
                                 </div>
                             </div>
 
                             <!-- Kids -->
                             <div
-                                class="bg-sand/70 border border-gray-200 rounded-xl px-1.5 py-1.5 flex flex-col items-center justify-center">
+                                class="bg-sand/70 border border-gray-200 rounded-xl px-3 sm:px-1.5 py-1.5 flex flex-row sm:flex-col items-center justify-between sm:justify-center">
                                 <span
-                                    class="text-[9px] font-bold uppercase tracking-wide text-gray-500 mb-0.5">Kids</span>
-                                <div class="flex items-center gap-1">
+                                    class="text-xs sm:text-[10px] font-bold uppercase tracking-wide text-gray-600 sm:mb-0.5">Kids</span>
+                                <div class="flex items-center gap-2 lg:gap-1">
                                     <button type="button" onclick="updateCount('children', -1)"
                                         aria-label="Decrease kids"
-                                        class="w-5 h-5 rounded-md bg-white border border-gray-200 text-forest font-bold text-xs flex items-center justify-center hover:bg-forest hover:text-white transition cursor-pointer">−</button>
+                                        class="w-10 h-10 sm:w-9 sm:h-9 lg:w-6 lg:h-6 rounded-lg bg-white border border-gray-200 text-forest font-bold text-base lg:text-xs flex items-center justify-center hover:bg-forest hover:text-white transition cursor-pointer">−</button>
                                     <span id="childCount"
-                                        class="w-4 text-center text-xs font-bold text-charcoal tabular-nums">0</span>
+                                        class="w-6 lg:w-4 text-center text-base lg:text-xs font-bold text-charcoal tabular-nums">0</span>
                                     <button type="button" onclick="updateCount('children', 1)"
                                         aria-label="Increase kids"
-                                        class="w-5 h-5 rounded-md bg-white border border-gray-200 text-forest font-bold text-xs flex items-center justify-center hover:bg-forest hover:text-white transition cursor-pointer">+</button>
+                                        class="w-10 h-10 sm:w-9 sm:h-9 lg:w-6 lg:h-6 rounded-lg bg-white border border-gray-200 text-forest font-bold text-base lg:text-xs flex items-center justify-center hover:bg-forest hover:text-white transition cursor-pointer">+</button>
                                 </div>
                             </div>
 
                             <!-- Rooms -->
                             <div
-                                class="bg-sand/70 border border-gray-200 rounded-xl px-1.5 py-1.5 flex flex-col items-center justify-center">
+                                class="bg-sand/70 border border-gray-200 rounded-xl px-3 sm:px-1.5 py-1.5 flex flex-row sm:flex-col items-center justify-between sm:justify-center">
                                 <span
-                                    class="text-[9px] font-bold uppercase tracking-wide text-gray-500 mb-0.5">Rooms</span>
-                                <div class="flex items-center gap-1">
+                                    class="text-xs sm:text-[10px] font-bold uppercase tracking-wide text-gray-600 sm:mb-0.5">Rooms</span>
+                                <div class="flex items-center gap-2 lg:gap-1">
                                     <button type="button" onclick="updateCount('rooms', -1)" aria-label="Decrease rooms"
-                                        class="w-5 h-5 rounded-md bg-white border border-gray-200 text-forest font-bold text-xs flex items-center justify-center hover:bg-forest hover:text-white transition cursor-pointer">−</button>
+                                        class="w-10 h-10 sm:w-9 sm:h-9 lg:w-6 lg:h-6 rounded-lg bg-white border border-gray-200 text-forest font-bold text-base lg:text-xs flex items-center justify-center hover:bg-forest hover:text-white transition cursor-pointer">−</button>
                                     <span id="roomCount"
-                                        class="w-4 text-center text-xs font-bold text-charcoal tabular-nums">1</span>
+                                        class="w-6 lg:w-4 text-center text-base lg:text-xs font-bold text-charcoal tabular-nums">1</span>
                                     <button type="button" onclick="updateCount('rooms', 1)" aria-label="Increase rooms"
-                                        class="w-5 h-5 rounded-md bg-white border border-gray-200 text-forest font-bold text-xs flex items-center justify-center hover:bg-forest hover:text-white transition cursor-pointer">+</button>
+                                        class="w-10 h-10 sm:w-9 sm:h-9 lg:w-6 lg:h-6 rounded-lg bg-white border border-gray-200 text-forest font-bold text-base lg:text-xs flex items-center justify-center hover:bg-forest hover:text-white transition cursor-pointer">+</button>
                                 </div>
                             </div>
                         </div>
@@ -142,7 +143,9 @@
                             <span id="bookingCtaText">Book via WhatsApp</span>
                             <span>→</span>
                         </button>
+                        <p id="estimateNote" class="text-[11px] leading-snug text-gray-600 mt-1.5 px-0.5"></p>
                     </div>
+                    <p id="capacityWarning" role="status" class="hidden sm:col-span-2 lg:col-span-12 text-xs text-amber-900 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2"></p>
 
                 </div>
             </div>
@@ -154,10 +157,10 @@
     <section id="stays" class="py-20 px-5 md:px-12 max-w-7xl mx-auto">
         <div class="flex flex-col md:flex-row md:items-end justify-between mb-12 reveal">
             <div>
-                <span class="text-gold font-semibold text-xs uppercase tracking-widest">Sanctuaries & Tariffs</span>
+                <span class="text-bronze font-semibold text-xs uppercase tracking-widest">Sanctuaries & Tariffs</span>
                 <h2 class="font-serif text-4xl md:text-5xl font-semibold text-forest mt-2">Choose Your Stay</h2>
             </div>
-            <a href="rooms.html" class="text-forest font-semibold text-sm underline underline-offset-4 hover:text-gold transition mt-3 md:mt-0">Compare all rooms & amenities →</a>
+            <a href="rooms.html" class="text-forest font-semibold text-sm underline underline-offset-4 hover:text-bronze transition mt-3 md:mt-0">Compare all rooms & amenities →</a>
         </div>
         <div id="stayCards" class="grid grid-cols-1 md:grid-cols-3 gap-8"></div>
         <div id="moreStays"></div>
@@ -178,7 +181,7 @@
             <span class="text-[11px] text-gray-500 block">Direct Tariff</span>
             <span class="text-base font-bold text-forest tabular-nums">From <span data-starting-price></span> <span class="text-xs font-normal text-gray-500">/ night</span></span>
         </div>
-        <a href="#booking-dock" class="bg-gold text-white text-sm font-semibold px-5 py-2.5 rounded-xl shadow">Check Dates</a>
+        <a href="#booking-dock" class="bg-bronze text-white text-sm font-semibold px-5 py-2.5 rounded-xl shadow">Check Dates</a>
     </div>
 
     <div id="site-footer"></div>
@@ -186,7 +189,7 @@
 
     <script src="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.js"></script>
     <script src="js/components.js"></script>
-    <script src="js/sections.js"></script>
+    <script src="js/pricing.js"></script>
     <script src="js/script.js"></script>
 </body>
 

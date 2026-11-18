@@ -11,7 +11,9 @@ const RESORT_TAILWIND_EXTEND = {
     forestLight: "rgb(var(--c-forest-light) / <alpha-value>)",
     gold: "rgb(var(--c-gold) / <alpha-value>)",
     goldHover: "rgb(var(--c-gold-hover) / <alpha-value>)",
-    charcoal: "rgb(var(--c-charcoal) / <alpha-value>)"
+    charcoal: "rgb(var(--c-charcoal) / <alpha-value>)",
+    bronze: "rgb(var(--c-bronze) / <alpha-value>)",
+    bronzeHover: "rgb(var(--c-bronze-hover) / <alpha-value>)"
   },
   fontFamily: {
     serif: ['"Cormorant Garamond"', "serif"],

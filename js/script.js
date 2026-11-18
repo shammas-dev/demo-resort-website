@@ -15,6 +15,8 @@ const nightsLabel = document.getElementById("nightsLabel");
 const totalPriceEl = document.getElementById("totalPrice");
 const bookingCtaText = document.getElementById("bookingCtaText");
 const navbar = document.getElementById("navbar");
+const estimateNoteEl = document.getElementById("estimateNote");
+const capacityWarningEl = document.getElementById("capacityWarning");
 
 let checkinPicker, checkoutPicker;
 let adultGuests = 2;
@@ -103,47 +105,38 @@ function initDefaultDates() {
   calculateTotal();
 }
 
-// 4. Rate calculator (booking dock)
+// 4. Rate calculator (booking dock). The rules live in js/pricing.js (unit-tested)
 function getBookingCalculation() {
-  const checkinDate = checkinPicker ? checkinPicker.selectedDates[0] : null;
-  const checkoutDate = checkoutPicker ? checkoutPicker.selectedDates[0] : null;
   const room = (roomTypeSelect && getRoom(roomTypeSelect.value)) || ROOMS[0] || { name: "", price: 0 };
-  const baseRate = room.price;
-
-  const pricing = CONFIG.pricing || { showLivePrice: true, baseAdultsPerRoom: 2, extraAdultPrice: 0, extraChildPrice: 0, gstPercent: 0 };
-
-  let nights = 1;
-  if (checkinDate && checkoutDate && checkoutDate > checkinDate) {
-    nights = Math.max(1, Math.round((checkoutDate - checkinDate) / (1000 * 60 * 60 * 24)));
-  }
-
-  const includedAdults = roomCount * (pricing.baseAdultsPerRoom || 2);
-  const extraAdults = Math.max(0, adultGuests - includedAdults);
-  const perNightTotal = roomCount * baseRate + extraAdults * (pricing.extraAdultPrice || 0) + childGuests * (pricing.extraChildPrice || 0);
-
-  let grandTotal = nights * perNightTotal;
-  if (pricing.gstPercent && pricing.gstPercent > 0) grandTotal = Math.round(grandTotal * (1 + pricing.gstPercent / 100));
-
-  const detailTags = [`${nights} Night${nights > 1 ? "s" : ""}`, `${roomCount} Room${roomCount > 1 ? "s" : ""}`];
-  if (extraAdults > 0 && (pricing.extraAdultPrice || 0) > 0) detailTags.push(`+${extraAdults} Extra Adult`);
-  if (childGuests > 0 && (pricing.extraChildPrice || 0) > 0) detailTags.push(`+${childGuests} Kid${childGuests > 1 ? "s" : ""}`);
-
-  return {
+  const calc = Pricing.calculateStay({
     room,
-    nights,
-    roomCount,
-    extraAdults,
-    grandTotal,
-    summaryLabel: detailTags.join(" • "),
-    showLivePrice: pricing.showLivePrice !== false
-  };
+    checkin: checkinPicker ? checkinPicker.selectedDates[0] : null,
+    checkout: checkoutPicker ? checkoutPicker.selectedDates[0] : null,
+    adults: adultGuests,
+    children: childGuests,
+    rooms: roomCount,
+    pricing: CONFIG.pricing || {}
+  });
+  return { ...calc, room, showLivePrice: isLivePriceEnabled() };
+}
+
+function taxText() {
+  const p = CONFIG.pricing || {};
+  return p.gstPercent > 0 ? `Incl. ${p.gstPercent}% GST.` : p.taxNote || "";
 }
 
 function calculateTotal() {
   if (!roomTypeSelect) return;
   const calc = getBookingCalculation();
   if (nightsLabel) nightsLabel.textContent = calc.summaryLabel;
-  if (totalPriceEl) totalPriceEl.textContent = calc.showLivePrice ? money(calc.grandTotal) : "Custom Quote";
+  if (totalPriceEl) totalPriceEl.textContent = calc.showLivePrice ? money(calc.total) : "Custom Quote";
+  if (estimateNoteEl) {
+    estimateNoteEl.textContent = calc.showLivePrice ? ["Estimate.", taxText(), "Final rate confirmed on WhatsApp."].filter(Boolean).join(" ") : "";
+  }
+  if (capacityWarningEl) {
+    capacityWarningEl.textContent = calc.capacity.message;
+    capacityWarningEl.classList.toggle("hidden", calc.capacity.ok);
+  }
 }
 
 // 5. One-tap room selection from home cards
@@ -155,49 +148,78 @@ function selectRoomAndScroll(roomId) {
   if (dock) dock.scrollIntoView({ behavior: "smooth", block: "center" });
 }
 
-// 6. WhatsApp actions
+// 6. WhatsApp actions (every website message ends with a Ref so the owner can tell where it came from)
+function ratesLine(calc) {
+  return calc.groups.map((g) => `${g.label} ${money(g.rate)} × ${g.nights} night${g.nights > 1 ? "s" : ""}`).join(", ");
+}
+
 function bookViaWhatsApp() {
-  if (!roomTypeSelect) return openWhatsApp(`Hi ${RESORT_NAME}! I'd like to check room availability.`);
+  if (!roomTypeSelect) return openWhatsApp(`Hi ${RESORT_NAME}! I'd like to check room availability.\n\n• *Ref:* ${Resort.ref()}`);
 
   const calc = getBookingCalculation();
   const checkin = checkinInput.value || "Flexible";
   const checkout = checkoutInput.value || "Flexible";
   const guestsText = guestsInput ? guestsInput.value : `${adultGuests} Adults, ${roomCount} Room`;
-  const stay = `${calc.room.name} × ${calc.roomCount} Room${calc.roomCount > 1 ? "s" : ""} (${money(calc.room.price)}/nt)`;
+  const stay = `${calc.room.name} × ${calc.rooms} Room${calc.rooms > 1 ? "s" : ""}`;
+  const note = calc.capacity.ok ? "" : "\n• *Note:* Group is above the room capacity, please suggest options";
+  const tax = taxText().replace(/\.$/, "");
 
-  const message = calc.showLivePrice
-    ? `Hi ${RESORT_NAME}! I'd like to check availability & book:\n\n• *Stay:* ${stay}\n• *Check-in:* ${checkin}\n• *Check-out:* ${checkout}\n• *Guests:* ${guestsText}\n• *Breakdown:* ${calc.summaryLabel}\n• *Estimated Total:* ${money(calc.grandTotal)}`
-    : `Hi ${RESORT_NAME}! Please share best rates & availability for:\n\n• *Stay:* ${stay}\n• *Check-in:* ${checkin}\n• *Check-out:* ${checkout}\n• *Guests:* ${guestsText} (${calc.nights} Night${calc.nights > 1 ? "s" : ""})`;
-  openWhatsApp(message);
+  const lines = calc.showLivePrice
+    ? [
+        `Hi ${RESORT_NAME}! I'd like to check availability & book:\n`,
+        `• *Stay:* ${stay}`,
+        `• *Check-in:* ${checkin}`,
+        `• *Check-out:* ${checkout}`,
+        `• *Guests:* ${guestsText}`,
+        `• *Rates (per room/night):* ${ratesLine(calc)}`,
+        `• *Breakdown:* ${calc.summaryLabel}`,
+        `• *Estimated Total:* ${money(calc.total)}${tax ? ` (${tax})` : ""}`
+      ]
+    : [
+        `Hi ${RESORT_NAME}! Please share best rates & availability for:\n`,
+        `• *Stay:* ${stay}`,
+        `• *Check-in:* ${checkin}`,
+        `• *Check-out:* ${checkout}`,
+        `• *Guests:* ${guestsText} (${calc.nights} Night${calc.nights > 1 ? "s" : ""})`
+      ];
+  openWhatsApp(`${lines.join("\n")}${note}\n• *Ref:* ${Resort.ref()}`);
 }
 
 function quickBookRoom(roomId) {
   const room = getRoom(roomId);
   if (!room) return;
-  openWhatsApp(`Hi ${RESORT_NAME}! I'm interested in booking the *${room.name}* (${money(room.price)}/night). Please share availability & best offer for my dates.`);
+  openWhatsApp(`Hi ${RESORT_NAME}! I'm interested in booking the *${room.name}* (from ${money(room.price)}/night). Please share availability & best offer for my dates.\n\n• *Ref:* ${Resort.ref()}`);
 }
 
 function quickBookPackage(packageId) {
   const pkg = (CONFIG.packages || []).find((p) => p.id === packageId);
   if (!pkg) return;
-  openWhatsApp(`Hi ${RESORT_NAME}! I'd like to enquire about the *${pkg.name}* — ${pkg.duration} (${pkg.priceLabel}). Please share package availability.`);
+  openWhatsApp(`Hi ${RESORT_NAME}! I'd like to enquire about the *${pkg.name}* — ${pkg.duration} (${pkg.priceLabel}). Please share package availability.\n\n• *Ref:* ${Resort.ref()}`);
 }
 
 function submitCustomEnquiry(event) {
   event.preventDefault();
   const val = (id) => document.getElementById(id).value;
   const notes = val("enqNotes") || "None";
-  openWhatsApp(`Hi ${RESORT_NAME}! Custom Stay Enquiry:\n\n• *Name:* ${val("enqName")}\n• *Dates:* ${val("enqDates")}\n• *Guests:* ${val("enqGuests")}\n• *Notes:* ${notes}`);
+  openWhatsApp(`Hi ${RESORT_NAME}! Custom Stay Enquiry:\n\n• *Name:* ${val("enqName")}\n• *Dates:* ${val("enqDates")}\n• *Guests:* ${val("enqGuests")}\n• *Notes:* ${notes}\n• *Ref:* ${Resort.ref()}`);
 }
 
-// 7. Gallery filter + lightbox
+// 7. Gallery filter + lightbox (Esc, arrow keys, prev/next buttons, swipe, focus returns to the photo you opened)
+let lightboxIndex = 0;
+let lightboxReturnFocus = null;
+const visibleGalleryItems = () => [...document.querySelectorAll(".gallery-item")].filter((i) => i.style.display !== "none");
+const lightboxModal = () => document.getElementById("lightboxModal");
+const lightboxIsOpen = () => !!lightboxModal() && !lightboxModal().classList.contains("hidden");
+
 function applyGalleryFilter(btn) {
   document.querySelectorAll(".filter-btn").forEach((b) => {
-    b.classList.remove("active", "bg-gold");
+    b.classList.remove("active", "bg-bronze");
     b.classList.add("bg-white/10");
+    b.setAttribute("aria-pressed", "false");
   });
-  btn.classList.add("active", "bg-gold");
+  btn.classList.add("active", "bg-bronze");
   btn.classList.remove("bg-white/10");
+  btn.setAttribute("aria-pressed", "true");
 
   const filter = btn.dataset.filter;
   document.querySelectorAll(".gallery-item").forEach((item) => {
@@ -205,25 +227,58 @@ function applyGalleryFilter(btn) {
   });
 }
 
-function openLightbox(item) {
-  const modal = document.getElementById("lightboxModal");
+function showLightbox(index) {
+  const items = visibleGalleryItems();
+  if (!items.length) return;
+  lightboxIndex = (index + items.length) % items.length;
+  const item = items[lightboxIndex];
   const image = item.querySelector("img");
-  if (!modal || !image) return;
-  document.getElementById("lightboxImg").src = image.src;
-  document.getElementById("lightboxImg").alt = image.alt;
+  const big = document.getElementById("lightboxImg");
+  big.src = Resort.img(image.currentSrc || image.src, 1600);
+  big.alt = image.alt;
   document.getElementById("lightboxCaption").textContent = item.dataset.caption || "";
+}
+
+function openLightbox(item) {
+  const modal = lightboxModal();
+  if (!modal) return;
+  lightboxReturnFocus = document.activeElement;
+  showLightbox(visibleGalleryItems().indexOf(item));
   modal.classList.remove("hidden");
   modal.classList.add("flex");
+  const closeBtn = document.getElementById("lightboxClose");
+  if (closeBtn) closeBtn.focus();
 }
 
 function closeLightbox() {
-  const modal = document.getElementById("lightboxModal");
+  const modal = lightboxModal();
   if (!modal) return;
   modal.classList.add("hidden");
   modal.classList.remove("flex");
+  if (lightboxReturnFocus && lightboxReturnFocus.focus) lightboxReturnFocus.focus();
 }
 
-// 8. Click handling for rendered content (works for elements created by sections.js)
+document.addEventListener("keydown", (e) => {
+  if (!lightboxIsOpen()) return;
+  if (e.key === "Escape") closeLightbox();
+  else if (e.key === "ArrowRight") showLightbox(lightboxIndex + 1);
+  else if (e.key === "ArrowLeft") showLightbox(lightboxIndex - 1);
+});
+
+(function initLightboxSwipe() {
+  const modal = lightboxModal();
+  if (!modal) return;
+  let startX = null;
+  modal.addEventListener("touchstart", (e) => { startX = e.touches[0].clientX; }, { passive: true });
+  modal.addEventListener("touchend", (e) => {
+    if (startX === null) return;
+    const dx = e.changedTouches[0].clientX - startX;
+    startX = null;
+    if (Math.abs(dx) > 50) showLightbox(lightboxIndex + (dx < 0 ? 1 : -1));
+  });
+})();
+
+// 8. Click handling for rendered content (works for elements created by templates)
 document.addEventListener("click", (e) => {
   const t = (sel) => e.target.closest(sel);
   let el;
@@ -232,6 +287,9 @@ document.addEventListener("click", (e) => {
   if ((el = t("[data-quick-package]"))) return quickBookPackage(el.dataset.quickPackage);
   if ((el = t("[data-gallery-item]"))) return openLightbox(el);
   if ((el = t("[data-filter]"))) return applyGalleryFilter(el);
+  if (t("[data-lightbox-close]") || e.target.id === "lightboxModal") return closeLightbox();
+  if (t("[data-lightbox-prev]")) return showLightbox(lightboxIndex - 1);
+  if (t("[data-lightbox-next]")) return showLightbox(lightboxIndex + 1);
 });
 
 // 9. Home header: solid background after scrolling

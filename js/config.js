@@ -5,6 +5,16 @@
    client's real details, or remove/hide them.
    ===================================================================== */
 const RESORT_CONFIG = {
+  // ---------- Build / SEO ----------
+  isDemo: true,  // set to false for a real client: `npm run build` then rejects demo stock images and a missing siteUrl
+  siteUrl: "",   // the live address, no trailing slash, e.g. "https://www.vanamist.in". Needed for share previews, canonical, sitemap
+  seo: {
+    ogImage: "",      // image shown when the link is shared on WhatsApp (1200x630 works best). "" = use the hero image
+    cleanUrls: true,  // Cloudflare Pages serves /rooms instead of /rooms.html. Set false for hosts that keep .html
+    social: [],       // optional: ["https://www.instagram.com/...", "https://www.facebook.com/..."]
+    geo: null         // optional: { lat: 11.5, lng: 76.1 } helps Google Maps / local search
+  },
+
   // ---------- Identity ----------
   brandName: "Vana Mist Resort",
   shortName: "Vana Mist",
@@ -33,7 +43,17 @@ const RESORT_CONFIG = {
     baseAdultsPerRoom: 2,  // adults included in the base room tariff
     extraAdultPrice: 1200, // per extra adult per night (0 = free)
     extraChildPrice: 800,  // per child per night (0 = kids free)
-    gstPercent: 0          // 0 = not added. Confirm the correct GST with the client's CA
+    gstPercent: 0,         // 0 = tax not added. Confirm the right GST with the client's CA
+    taxNote: "Taxes extra.", // shown under the estimate when gstPercent is 0. "" = hidden
+
+    // Simple seasonal pricing (optional). The room price goes up by a %.
+    // If weekend and season both apply to a night, the HIGHER % is used (they do not add up).
+    weekendPercent: 15,    // DEMO: 0 = no weekend uplift
+    weekendDays: [5, 6],   // nights starting on: 0=Sun 1=Mon ... 5=Fri 6=Sat
+    seasons: [             // DEMO: [] = no seasons. Dates are MM-DD and repeat every year
+      { name: "Christmas & New Year", from: "12-20", to: "01-03", percent: 30 }
+    ],
+    roundTo: 10            // round nightly rates to the nearest ₹10
   },
 
   // ---------- Theme (hex). Applied site-wide on load ----------
@@ -80,6 +100,12 @@ const RESORT_CONFIG = {
       description: "Honeymoon and family packages, directions and direct reservations at Vana Mist Resort.",
       eyebrow: "Curated Escapes & Directions",
       heading: "Packages & Reservations"
+    },
+    policies: {
+      title: "Policies & Privacy | Vana Mist Resort Wayanad",
+      description: "Booking, cancellation, house rules and privacy information for Vana Mist Resort.",
+      eyebrow: "Good to Know",
+      heading: "Policies & Privacy"
     }
   },
 
@@ -139,7 +165,8 @@ const RESORT_CONFIG = {
       name: "Mist Valley Cottage",
       price: 4999,
       area: "420 sq.ft",
-      guests: "Max 2 Adults + 1 Child",
+      maxAdults: 2, // capacity per room (warning only). Shown as "Max 2 Adults + 1 Child"
+      maxChildren: 1,
       badge: "Best Value",
       shortDesc: "Cozy teak-wood cottage with a private valley-facing balcony, rain shower, and morning mist views.",
       description: "Crafted with reclaimed teak wood and local laterite stone, featuring a private valley-facing sit-out deck where morning mist drifts right past your balcony.",
@@ -153,7 +180,8 @@ const RESORT_CONFIG = {
       name: "Forest Canopy Villa",
       price: 7499,
       area: "650 sq.ft",
-      guests: "Max 2 Adults + 2 Children",
+      maxAdults: 2,
+      maxChildren: 2,
       badge: "Most Popular",
       shortDesc: "Elevated glass-walled villa surrounded by 100-year-old trees, outdoor deck, and freestanding soaking tub.",
       description: "Elevated amidst 100-year-old rosewood trees with floor-to-ceiling glass walls, an expansive wooden lounge deck, and a deep freestanding stone soaking tub.",
@@ -167,7 +195,8 @@ const RESORT_CONFIG = {
       name: "Plunge Pool Suite",
       price: 10999,
       area: "920 sq.ft",
-      guests: "Max 2 Adults (Honeymoon)",
+      maxAdults: 2,
+      maxChildren: 0,
       badge: "Honeymoon Pick",
       shortDesc: "Ultra-private luxury sanctuary featuring a heated private infinity plunge pool, gazebo, and butler service.",
       description: "Our flagship private sanctuary featuring a temperature-controlled infinity plunge pool overlooking the valley, private dining gazebo, and dedicated butler service.",
@@ -225,6 +254,29 @@ const RESORT_CONFIG = {
       { category: "villas", caption: "Private Plunge Pool Villa", alt: "Plunge Pool Suite", src: "https://images.unsplash.com/photo-1613490493576-7fde63acd811?auto=format&fit=crop&w=900&q=80" },
       { category: "pool", caption: "Morning Tea Deck", alt: "Estate Lounge Deck", src: "https://images.unsplash.com/photo-1540541338287-41700207dee6?auto=format&fit=crop&w=900&q=80" },
       { category: "dining", caption: "Traditional Ayurveda Sanctuary", alt: "Ayurveda Wellness Spa", src: "https://images.unsplash.com/photo-1544161515-4ab6ce6db874?auto=format&fit=crop&w=900&q=80" }
+    ]
+  },
+
+  // ---------- Policies page (linked from the footer when enabled) ----------
+  // DEMO text: replace with the resort's REAL policies. Do not publish refund terms the owner has not agreed to.
+  policies: {
+    enabled: true,
+    sections: [
+      { title: "Booking & Payment", items: [
+        "Enquiries and bookings are handled by the resort team on WhatsApp. Your stay is confirmed only when the resort confirms it.",
+        "This website does not take payments. Payment terms are shared by the resort when you book."
+      ] },
+      { title: "Cancellation & Refunds", items: [
+        "Cancellation and refund terms are shared by the resort at the time of booking. Please ask on WhatsApp before you pay."
+      ] },
+      { title: "House Rules", items: [
+        "A valid photo ID is required for every guest at check-in.",
+        "Please keep noise low after 10:00 PM so everyone can enjoy the quiet of the estate."
+      ] },
+      { title: "Privacy", items: [
+        "This website does not collect or store your personal details.",
+        "When you tap a WhatsApp button, the details you chose (dates, room, guests, any name you typed) are placed in a WhatsApp message to the resort. They are used only to reply to your enquiry."
+      ] }
     ]
   },
 

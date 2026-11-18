@@ -8,6 +8,8 @@
   --c-gold: 200 138 85;
   --c-gold-hover: 181 119 67;
   --c-charcoal: 28 28 28;
+  --c-bronze: 152 105 65;       /* gold darkened for white text (contrast >= 4.5) */
+  --c-bronze-hover: 134 92 57;
 }
 
 /* Slow Ken Burns hero zoom */
