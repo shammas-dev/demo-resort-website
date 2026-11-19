@@ -69,8 +69,54 @@ function updateCount(type, delta) {
 }
 
 // 3. Date pickers (d/M/Y, e.g. 18/Nov/2026)
+// Fallback used when the flatpickr script could not load (CDN blocked / offline): plain <input type="date">
+const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+const pad2 = (n) => String(n).padStart(2, "0");
+const isoDate = (d) => `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`;
+const parseIso = (v) => {
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(v || "");
+  return m ? new Date(+m[1], +m[2] - 1, +m[3]) : null;
+};
+const addDays = (d, n) => new Date(d.getFullYear(), d.getMonth(), d.getDate() + n);
+
+function initNativeDates() {
+  const today = new Date();
+  [checkinInput, checkoutInput].forEach((input) => {
+    input.type = "date";
+    input.removeAttribute("readonly");
+  });
+  checkinInput.min = isoDate(today);
+  checkinInput.value = isoDate(addDays(today, 1));
+  checkoutInput.min = isoDate(addDays(today, 1));
+  checkoutInput.value = isoDate(addDays(today, 2));
+
+  const asPicker = (input) => ({ get selectedDates() { const d = parseIso(input.value); return d ? [d] : []; } });
+  checkinPicker = asPicker(checkinInput);
+  checkoutPicker = asPicker(checkoutInput);
+
+  checkinInput.addEventListener("change", () => {
+    const d = parseIso(checkinInput.value);
+    if (d) {
+      checkoutInput.min = isoDate(addDays(d, 1));
+      const out = parseIso(checkoutInput.value);
+      if (!out || out <= d) checkoutInput.value = isoDate(addDays(d, 1));
+    }
+    calculateTotal();
+  });
+  checkoutInput.addEventListener("change", calculateTotal);
+  calculateTotal();
+}
+
+// Date text for WhatsApp messages: "20/Nov/2026" for both pickers
+function dateText(input, picker) {
+  const d = picker && picker.selectedDates[0];
+  if (input.type === "date") return d ? `${pad2(d.getDate())}/${MONTHS[d.getMonth()]}/${d.getFullYear()}` : "Flexible";
+  return input.value || "Flexible";
+}
+
 function initDefaultDates() {
-  if (!checkinInput || !checkoutInput || typeof flatpickr === "undefined") return;
+  if (!checkinInput || !checkoutInput) return;
+  if (typeof flatpickr === "undefined") return initNativeDates();
 
   const today = new Date();
   const tomorrow = new Date(today);
@@ -157,8 +203,8 @@ function bookViaWhatsApp() {
   if (!roomTypeSelect) return openWhatsApp(`Hi ${RESORT_NAME}! I'd like to check room availability.\n\n• *Ref:* ${Resort.ref()}`);
 
   const calc = getBookingCalculation();
-  const checkin = checkinInput.value || "Flexible";
-  const checkout = checkoutInput.value || "Flexible";
+  const checkin = dateText(checkinInput, checkinPicker);
+  const checkout = dateText(checkoutInput, checkoutPicker);
   const guestsText = guestsInput ? guestsInput.value : `${adultGuests} Adults, ${roomCount} Room`;
   const stay = `${calc.room.name} × ${calc.rooms} Room${calc.rooms > 1 ? "s" : ""}`;
   const note = calc.capacity.ok ? "" : "\n• *Note:* Group is above the room capacity, please suggest options";

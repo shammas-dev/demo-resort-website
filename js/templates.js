@@ -146,17 +146,21 @@ const Templates = (() => {
     return `<div class="inline-flex items-center gap-2 bg-white/15 backdrop-blur-md border border-white/25 px-4 py-1.5 rounded-full text-xs md:text-sm font-medium mb-6">${rating}<span>Stays from <strong class="text-white">${money(min)} / night</strong>${note}</span></div>`;
   }
 
+  // Optional sections return "" when there is nothing to show, so no empty gap is left on the page
   function trustBar(cfg) {
-    return (cfg.trustBar || [])
-      .map(
-        (t) => `<div class="text-center w-[calc(50%-1.25rem)] md:w-auto md:flex-1"><p class="text-gold font-bold text-base md:text-lg">${esc(t.title)}</p><p class="text-white/75">${esc(t.text)}</p></div>`
-      )
-      .join("");
+    const items = cfg.trustBar || [];
+    if (!items.length) return "";
+    return `<div class="bg-forest text-alabaster py-6 px-5 border-t border-white/10 flex flex-wrap justify-center gap-x-10 gap-y-5 text-xs md:text-sm">${items
+      .map((t) => `<div class="text-center w-[calc(50%-1.25rem)] md:w-auto md:flex-1"><p class="text-gold font-bold text-base md:text-lg">${esc(t.title)}</p><p class="text-white/75">${esc(t.text)}</p></div>`)
+      .join("")}</div>`;
   }
 
   const BADGE_CLS = ["bg-white/90 backdrop-blur-md text-forest", "bg-bronze text-white", "bg-forest text-white"];
+  // 1 and 2 rooms are centred instead of leaving empty columns
+  const stayCols = (n) => (n === 1 ? "grid-cols-1 max-w-md mx-auto" : n === 2 ? "grid-cols-1 md:grid-cols-2 max-w-4xl mx-auto" : n === 3 ? "grid-cols-1 md:grid-cols-3" : "grid-cols-1 md:grid-cols-2 lg:grid-cols-3");
   function stayCards(cfg) {
-    return (cfg.rooms || [])
+    const rooms = cfg.rooms || [];
+    return `<div class="grid ${stayCols(rooms.length)} gap-8">${rooms
       .map(
         (r, i) => `<article class="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 flex flex-col reveal">
   <div class="relative h-64 overflow-hidden group">
@@ -178,14 +182,14 @@ const Templates = (() => {
   </div>
 </article>`
       )
-      .join("");
+      .join("")}</div>`;
   }
 
   function moreStays(cfg) {
     const n = (cfg.rooms || []).length;
     return `<div class="mt-12 text-center reveal"><div class="inline-flex flex-col sm:flex-row items-center gap-4 bg-sand/80 border border-gray-200/80 px-6 py-4 rounded-2xl">
 ${cfg.moreStaysNote ? `<p class="text-sm text-gray-700">${esc(cfg.moreStaysNote)}</p>` : ""}
-<a href="rooms.html" class="inline-flex items-center gap-2 bg-forest hover:bg-forestLight text-white text-sm font-semibold px-6 py-2.5 rounded-xl transition shadow-sm">Explore all ${n} stays & rates →</a>
+<a href="rooms.html" class="inline-flex items-center gap-2 bg-forest hover:bg-forestLight text-white text-sm font-semibold px-6 py-2.5 rounded-xl transition shadow-sm">${n > 1 ? `Explore all ${n} stays & rates →` : "View details & rates →"}</a>
 </div></div>`;
   }
 
@@ -193,34 +197,38 @@ ${cfg.moreStaysNote ? `<p class="text-sm text-gray-700">${esc(cfg.moreStaysNote)
     const s = cfg.story;
     if (!s) return "";
     const stats = s.stats || [];
-    return `<div class="reveal">
+    return `<section id="story" class="py-20 px-5 md:px-12 bg-sand/60"><div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+<div class="reveal">
   <span class="text-bronze font-semibold text-xs uppercase tracking-widest">${esc(s.eyebrow)}</span>
   <h2 class="font-serif text-4xl md:text-5xl font-semibold text-forest mt-2 leading-tight">${esc(s.title)}</h2>
   <p class="text-gray-600 mt-5 leading-relaxed">${esc(s.text)}</p>
-  <div class="grid gap-4 mt-8 pt-8 border-t border-gray-300/60" style="grid-template-columns:repeat(${stats.length || 1},minmax(0,1fr))">
+  ${stats.length ? `<div class="grid gap-4 mt-8 pt-8 border-t border-gray-300/60" style="grid-template-columns:repeat(${stats.length},minmax(0,1fr))">
     ${stats.map((x) => `<div><p class="font-serif text-3xl font-bold text-forest">${esc(x.value)}</p><p class="text-xs text-gray-600 mt-1">${esc(x.label)}</p></div>`).join("")}
-  </div>
+  </div>` : ""}
 </div>
-<div class="relative reveal"><img src="${esc(img(s.image, 1000))}" alt="${esc(s.imageAlt)}" loading="lazy" decoding="async" class="w-full h-[460px] object-cover rounded-t-full rounded-b-3xl shadow-xl" /></div>`;
+<div class="relative reveal"><img src="${esc(img(s.image, 1000))}" alt="${esc(s.imageAlt)}" loading="lazy" decoding="async" class="w-full h-[460px] object-cover rounded-t-full rounded-b-3xl shadow-xl" /></div>
+</div></section>`;
   }
 
   function experiences(cfg) {
     const ex = cfg.experiences;
-    if (!ex) return "";
-    return `<div class="flex flex-col md:flex-row md:items-end justify-between mb-14 reveal">
+    if (!ex || !(ex.items || []).length) return "";
+    const n = ex.items.length;
+    const cols = n === 1 ? "max-w-md" : n === 2 ? "sm:grid-cols-2 max-w-3xl" : n === 3 ? "sm:grid-cols-2 lg:grid-cols-3" : "sm:grid-cols-2 lg:grid-cols-4";
+    return `<section id="experiences" class="py-20 px-5 md:px-12 max-w-7xl mx-auto"><div class="flex flex-col md:flex-row md:items-end justify-between mb-14 reveal">
   <div><span class="text-bronze font-semibold text-xs uppercase tracking-widest">${esc(ex.eyebrow)}</span>
   <h2 class="font-serif text-4xl md:text-5xl font-semibold text-forest mt-2">${esc(ex.title)}</h2></div>
   <a href="gallery.html" class="text-forest font-semibold text-sm underline underline-offset-4 hover:text-bronze transition mt-3 md:mt-0">Explore full photo gallery →</a>
 </div>
-<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-${(ex.items || [])
+<div class="grid grid-cols-1 ${cols} gap-6 ${n <= 2 ? "mx-auto" : ""}">
+${ex.items
   .map(
     (i) => `<div class="relative h-80 rounded-2xl overflow-hidden group reveal">
   <img src="${esc(img(i.image, 700))}" alt="${esc(i.title)}" loading="lazy" decoding="async" class="w-full h-full object-cover group-hover:scale-110 transition duration-500" />
   <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent p-6 flex flex-col justify-end text-white"><h3 class="font-serif text-2xl font-semibold">${esc(i.title)}</h3><p class="text-xs text-white/85 mt-1">${esc(i.text)}</p></div></div>`
   )
   .join("")}
-</div>`;
+</div></section>`;
   }
 
   // ---------- rooms ----------
@@ -249,24 +257,31 @@ ${(ex.items || [])
 
   function compareTable(cfg) {
     const rooms = cfg.rooms || [];
-    if (!rooms.length) return "";
+    if (rooms.length < 2) return ""; // a one-column comparison makes no sense
     const labels = [];
     rooms.forEach((r) => Object.keys(r.compare || {}).forEach((k) => { if (!labels.includes(k)) labels.push(k); }));
     const row = (label, cell, bold) =>
       `<tr><td class="py-3.5 pr-4 font-medium">${esc(label)}</td>${rooms.map((r) => `<td class="py-3.5 px-4 ${bold ? "font-bold" : ""}">${cell(r)}</td>`).join("")}</tr>`;
-    return `<table class="w-full text-left text-sm">
+    return `<section class="bg-white rounded-3xl p-6 md:p-10 shadow-sm border border-gray-100 reveal">
+<h2 class="font-serif text-3xl font-semibold text-forest mb-6">Compare Stays at a Glance</h2>
+<div class="overflow-x-auto"><table class="w-full text-left text-sm">
 <thead><tr class="border-b border-gray-200 text-gray-600 uppercase text-xs"><th class="py-3 pr-4">Feature</th>${rooms.map((r) => `<th class="py-3 px-4 text-forest">${esc(r.name)}</th>`).join("")}</tr></thead>
 <tbody class="divide-y divide-gray-100">
 ${row("Direct Tariff", (r) => `${money(r.price)} / night`, true)}
 ${row("Area", (r) => esc(r.area))}
 ${row("Guests", (r) => esc(guestsText(r)))}
 ${labels.map((l) => row(l, (r) => esc((r.compare || {})[l] || "—"))).join("")}
-</tbody></table>`;
+</tbody></table></div></section>`;
   }
 
   // ---------- contact ----------
   function packageGrid(cfg) {
-    return (cfg.packages || [])
+    const pkgs = cfg.packages || [];
+    if (!pkgs.length) return "";
+    const heading = ((cfg.pages || {}).contact || {}).packagesHeading || "Packages & Offers";
+    const cols = pkgs.length === 1 ? "max-w-xl" : pkgs.length === 2 ? "md:grid-cols-2" : "md:grid-cols-2 lg:grid-cols-3";
+    return `<section><h2 class="font-serif text-3xl md:text-4xl font-semibold text-forest mb-8">${esc(heading)}</h2>
+<div class="grid grid-cols-1 ${cols} gap-8">${pkgs
       .map(
         (p) => `<div class="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm flex flex-col justify-between">
   <div>
@@ -278,7 +293,18 @@ ${labels.map((l) => row(l, (r) => esc((r.compare || {})[l] || "—"))).join("")}
   <button type="button" data-quick-package="${esc(p.id)}" class="mt-6 w-full bg-forest hover:bg-forestLight text-white font-semibold text-sm py-3 rounded-xl transition cursor-pointer">Enquire Package on WhatsApp →</button>
 </div>`
       )
-      .join("");
+      .join("")}</div></section>`;
+  }
+
+  // Embedded map when mapEmbedUrl is set, otherwise a link card (never an empty iframe)
+  function mapBlock(cfg) {
+    if (cfg.mapEmbedUrl) {
+      return `<div class="rounded-3xl overflow-hidden shadow-sm border border-gray-200 h-72"><iframe src="${esc(cfg.mapEmbedUrl)}" title="Map showing ${esc(cfg.brandName)}" width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy"></iframe></div>`;
+    }
+    if (cfg.mapUrl) {
+      return `<a href="${esc(cfg.mapUrl)}" target="_blank" rel="noopener noreferrer" class="block rounded-3xl bg-sand/70 border border-gray-200 p-10 text-center text-forest font-semibold hover:bg-sand transition">Open ${esc(cfg.brandName)} in Google Maps →</a>`;
+    }
+    return "";
   }
 
   // ---------- gallery ----------
@@ -326,14 +352,15 @@ ${labels.map((l) => row(l, (r) => esc((r.compare || {})[l] || "—"))).join("")}
     { id: "site-footer", mode: "replace", render: footer },
     { id: "site-floating", mode: "replace", render: floating },
     { id: "heroPill", mode: "inner", render: heroPill },
-    { id: "trustBar", mode: "inner", render: trustBar },
-    { id: "stayCards", mode: "inner", render: stayCards },
+    { id: "trustBar", mode: "replace", render: trustBar },
+    { id: "stayCards", mode: "replace", render: stayCards },
     { id: "moreStays", mode: "inner", render: moreStays },
-    { id: "storyContent", mode: "inner", render: story },
-    { id: "experiencesContent", mode: "inner", render: experiences },
+    { id: "storySection", mode: "replace", render: story },
+    { id: "experiencesSection", mode: "replace", render: experiences },
     { id: "roomsList", mode: "inner", render: roomsList },
-    { id: "compareTable", mode: "inner", render: compareTable },
-    { id: "packageGrid", mode: "inner", render: packageGrid },
+    { id: "compareSection", mode: "replace", render: compareTable },
+    { id: "packagesSection", mode: "replace", render: packageGrid },
+    { id: "mapBlock", mode: "replace", render: mapBlock },
     { id: "galleryFilters", mode: "inner", render: galleryFilters },
     { id: "galleryGrid", mode: "inner", render: galleryGrid },
     { id: "policyContent", mode: "inner", render: policyContent }
@@ -363,7 +390,7 @@ ${labels.map((l) => row(l, (r) => esc((r.compare || {})[l] || "—"))).join("")}
     return data; // note: no aggregateRating on purpose (invented ratings can get a site penalised)
   }
 
-  return { esc, money, img, digits, waUrl, get, guestsText, hexToRgb, contrastOnWhite, deriveBronze, themeVars, jsonLd, MOUNTS, header, footer, floating, stayCards, roomsList, compareTable, packageGrid, galleryGrid, galleryFilters, policyContent };
+  return { esc, money, img, digits, waUrl, get, guestsText, hexToRgb, contrastOnWhite, deriveBronze, themeVars, jsonLd, MOUNTS, header, footer, floating, heroPill, trustBar, stayCards, moreStays, story, experiences, roomsList, compareTable, packageGrid, mapBlock, galleryGrid, galleryFilters, policyContent };
 })();
 
 if (typeof module !== "undefined" && module.exports) module.exports = Templates;

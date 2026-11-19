@@ -1,8 +1,10 @@
 {
-  "name": "demo-resort-website",
+  "name": "resort-website-template",
+  "version": "1.0.0",
   "private": true,
   "engines": { "node": ">=18" },
   "scripts": {
+    "new-client": "node scripts/init-client.js",
     "check": "node scripts/check.js",
     "build": "node scripts/build.js",
     "test": "node tests/pricing.test.js && node tests/templates.test.js && node tests/build.test.js"

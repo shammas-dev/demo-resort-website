@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" role="img" aria-label="Placeholder photo">
+  <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#234736"/><stop offset="1" stop-color="#163024"/></linearGradient></defs>
+  <rect width="1200" height="800" fill="url(#g)"/>
+  <text x="600" y="395" font-family="Georgia, serif" font-size="46" fill="#E8D3B8" text-anchor="middle">Replace this photo</text>
+  <text x="600" y="450" font-family="Arial, sans-serif" font-size="26" fill="#9FB8A9" text-anchor="middle">Put the resort's own image in images/ and update js/config.js</text>
+</svg>

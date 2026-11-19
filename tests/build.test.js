@@ -3,10 +3,13 @@ const fs = require("fs");
 const os = require("os");
 const path = require("path");
 const { build, prerender, pageUrl } = require("../scripts/build.js");
-const { check, loadConfig } = require("../scripts/check.js");
+const { check, loadConfigFile } = require("../scripts/check.js");
+const { initClient } = require("../scripts/init-client.js");
 
 const ROOT = path.resolve(__dirname, "..");
-const cfg = loadConfig(ROOT);
+// tests run against a fixed copy of the demo config, so they keep passing when a client replaces js/config.js
+const FIXTURE = path.join(__dirname, "fixtures", "demo-config.js");
+const cfg = loadConfigFile(FIXTURE);
 const clone = (o) => JSON.parse(JSON.stringify(o));
 let n = 0;
 const test = (name, fn) => { fn(); n++; console.log("  ok  " + name); };
@@ -16,10 +19,8 @@ const quiet = () => {};
 function tempProject(edit) {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), "resort-"));
   fs.cpSync(ROOT, dir, { recursive: true, filter: (p) => !/node_modules|[\\/]dist$|\.git[\\/]/.test(p) });
-  if (edit) {
-    const f = path.join(dir, "js", "config.js");
-    fs.writeFileSync(f, edit(fs.readFileSync(f, "utf8")));
-  }
+  const base = fs.readFileSync(FIXTURE, "utf8");
+  fs.writeFileSync(path.join(dir, "js", "config.js"), edit ? edit(base) : base);
   return dir;
 }
 
@@ -109,6 +110,59 @@ test("check: missing local image is an error", () => assert.match(errorsFor((c) 
 test("build refuses to run on a broken config", () => {
   const d3 = tempProject((c) => c.replace('whatsappNumber: "918606411892"', 'whatsappNumber: "123"'));
   assert.throws(() => build({ root: d3, out: path.join(d3, "dist"), skipCss: true, log: quiet }), /config check failed/);
+});
+
+// ---------- starter + new-client ----------
+const quietLog = () => {};
+const sunrise = 'Sunrise & Co "Retreat"';
+
+test("new-client: writes a valid starter config with the name and number filled in", () => {
+  const d = tempProject();
+  initClient({ root: d, name: sunrise, whatsapp: "+91 98765 43210", log: quietLog });
+  const c = loadConfigFile(path.join(d, "js", "config.js"));
+  assert.equal(c.brandName, sunrise);
+  assert.equal(c.shortName, "Sunrise &");
+  assert.equal(c.logoInitial, "S");
+  assert.equal(c.whatsappNumber, "919876543210");
+  assert.equal(c.phoneDisplay, "+91 98765 43210");
+  assert.ok(c.mapUrl.includes("Sunrise+%26+Co") && fs.existsSync(path.join(d, "images", "placeholder.svg")));
+  assert.equal(check(c, d).errors.length, 0);
+});
+
+test("new-client: the starter builds; optional sections are absent; no undefined anywhere", () => {
+  const d = tempProject();
+  initClient({ root: d, name: "Sunrise Resort", whatsapp: "919876543210", short: "Sunrise", log: quietLog });
+  build({ root: d, out: path.join(d, "dist"), skipCss: true, log: quiet });
+  const home = fs.readFileSync(path.join(d, "dist", "index.html"), "utf8");
+  const contact = fs.readFileSync(path.join(d, "dist", "contact.html"), "utf8");
+  assert.ok(home.includes("Sunrise Resort") && !home.includes('id="story"') && !home.includes('id="experiences"'));
+  assert.ok(!contact.includes("Packages &amp; Offers") && contact.includes("Open Sunrise Resort in Google Maps"));
+  ["index", "rooms", "gallery", "contact", "policies"].forEach((p) => {
+    const html = fs.readFileSync(path.join(d, "dist", p + ".html"), "utf8");
+    assert.ok(!/undefined|NaN|\[object/.test(html), p);
+  });
+  assert.ok(fs.readFileSync(path.join(d, "dist", "rooms.html"), "utf8").includes("Compare Stays at a Glance"));
+});
+
+test("new-client: going live with placeholders left is blocked", () => {
+  const d = tempProject();
+  initClient({ root: d, name: "Sunrise Resort", whatsapp: "919876543210", log: quietLog });
+  const f = path.join(d, "js", "config.js");
+  fs.writeFileSync(f, fs.readFileSync(f, "utf8").replace("isDemo: true", "isDemo: false").replace('siteUrl: ""', 'siteUrl: "https://sunrise.example.in"'));
+  const e = check(loadConfigFile(f), d).errors.join(" | ");
+  assert.match(e, /placeholder text still in config/);
+  assert.throws(() => build({ root: d, out: path.join(d, "dist"), skipCss: true, log: quiet }), /config check failed/);
+});
+
+test("new-client: never overwrites a finished client config without --force", () => {
+  const d = tempProject((c) => c.replace("isDemo: true", "isDemo: false"));
+  assert.throws(() => initClient({ root: d, name: "X Resort", whatsapp: "919876543210", log: quietLog }), /already holds a finished client config/);
+  initClient({ root: d, name: "X Resort", whatsapp: "919876543210", force: true, log: quietLog });
+  assert.equal(loadConfigFile(path.join(d, "js", "config.js")).brandName, "X Resort");
+});
+
+test("new-client: rejects a bad WhatsApp number", () => {
+  assert.throws(() => initClient({ root: tempProject(), name: "X", whatsapp: "12345", log: quietLog }), /digits incl. country code/);
 });
 
 console.log(`\n${n} tests passed`);

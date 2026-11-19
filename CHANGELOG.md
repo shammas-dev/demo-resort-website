@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.0.0: first stable template
+- `npm run new-client -- "Resort Name" 919876543210` creates a clean starter config (`starter/`) with a placeholder image. Strict mode (`isDemo: false`) refuses to ship any placeholder text.
+- Optional sections now disappear completely when the config leaves them out: trust bar, story, experiences, packages (and the comparison table when there is only one room). No empty gaps.
+- Layouts adapt to the number of rooms, packages and experiences (1, 2, 3 or more); the contact page shows a map link card when no embed URL is set.
+- The date picker falls back to native date inputs if the flatpickr script cannot load, so guests can always pick dates.
+- Tests run against a fixed copy of the demo config (`tests/fixtures/`), so `npm test` passes in any client repo. 49 tests.
+- GitHub Actions CI (`.github/workflows/ci.yml`) runs tests and the real production build on every push and pull request. `.nvmrc` pins Node 20. `.editorconfig` added.
+- Removed unused config keys (`locationShort`, `rating.reviews`, `rating.source`, `theme.goldHover`).
+- Complete guide (PDF) added in `docs/`.
+
 ## Phase 3: Production-ready
 - `npm run build` pre-renders every page into static HTML in `dist/` (content visible without JavaScript, WhatsApp/Google link previews work) and compiles Tailwind (CDN removed from production).
 - Rendering moved to pure functions in `js/templates.js`, shared by the browser (dev) and the build. `js/sections.js` is gone.

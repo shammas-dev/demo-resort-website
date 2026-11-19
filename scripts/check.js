@@ -4,10 +4,10 @@ const fs = require("fs");
 const path = require("path");
 const vm = require("vm");
 
-function loadConfig(root) {
-  const file = path.join(root, "js", "config.js");
+function loadConfigFile(file) {
   return vm.runInNewContext(fs.readFileSync(file, "utf8") + "\n;RESORT_CONFIG", {});
 }
+const loadConfig = (root) => loadConfigFile(path.join(root, "js", "config.js"));
 
 function check(cfg, root) {
   const errors = [];
@@ -100,8 +100,9 @@ function check(cfg, root) {
     .concat(rooms.map((r) => r.image))
     .concat(((g || {}).items || []).map((i) => i.src))
     .filter(Boolean);
+  const unique = [...new Set(refs)];
   let stock = 0;
-  refs.forEach((ref) => {
+  unique.forEach((ref) => {
     if (/^https?:\/\//.test(ref)) {
       if (/unsplash\.com/.test(ref)) stock++;
       return;
@@ -113,6 +114,17 @@ function check(cfg, root) {
   });
   if (stock) (demo ? warn : err)(`${stock} image(s) still use demo Unsplash stock photos. Replace them with the client's own photos`);
 
+  // placeholder text left over from the starter config (real clients only)
+  if (!demo) {
+    const bad = [];
+    (function walk(v, p) {
+      if (typeof v === "string") { if (/\b(Your Resort|Replace this|TODO)\b|placeholder|yourresort\.example/i.test(v)) bad.push(p); }
+      else if (Array.isArray(v)) v.forEach((x, i) => walk(x, `${p}[${i}]`));
+      else if (v && typeof v === "object") Object.entries(v).forEach(([k, x]) => walk(x, p ? `${p}.${k}` : k));
+    })(cfg, "");
+    if (bad.length) err(`placeholder text still in config: ${bad.slice(0, 6).join(", ")}${bad.length > 6 ? ` (+${bad.length - 6} more)` : ""}`);
+  }
+
   // honesty checks
   if (demo) warn("isDemo is true: this is demo content. Set isDemo: false for a real client to enable the strict checks");
   else {
@@ -123,7 +135,7 @@ function check(cfg, root) {
   return { errors, warnings };
 }
 
-module.exports = { check, loadConfig };
+module.exports = { check, loadConfig, loadConfigFile };
 
 if (require.main === module) {
   const root = path.resolve(__dirname, "..");

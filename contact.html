@@ -33,17 +33,12 @@
 
     <main id="main" class="max-w-7xl mx-auto py-16 px-5 md:px-12 space-y-20">
 
-        <section>
-            <h2 class="font-serif text-3xl md:text-4xl font-semibold text-forest mb-8">Seasonal & Honeymoon Packages</h2>
-            <div id="packageGrid" class="grid grid-cols-1 md:grid-cols-2 gap-8"></div>
-        </section>
+        <div id="packagesSection"></div>
 
         <section class="grid grid-cols-1 lg:grid-cols-2 gap-10 items-start">
             <div class="space-y-6">
                 <h2 class="font-serif text-3xl font-semibold text-forest">How to Reach Us</h2>
-                <div class="rounded-3xl overflow-hidden shadow-sm border border-gray-200 h-72">
-                    <iframe data-cfg-src="mapEmbedUrl" src="" title="Resort location map" width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
-                </div>
+                <div id="mapBlock"></div>
                 <div class="bg-sand/70 p-6 rounded-2xl text-sm space-y-2">
                     <p><strong>Address:</strong> <span data-cfg="address"></span></p>
                     <p><strong>Reservations Desk:</strong> <span data-cfg="phoneDisplay"></span> (<span data-cfg="contact.hours"></span>)</p>

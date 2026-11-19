@@ -20,7 +20,6 @@ const RESORT_CONFIG = {
   shortName: "Vana Mist",
   logoInitial: "V",
   tagline: "Where the Mist Meets the Forest Canopy",
-  locationShort: "Wayanad, Kerala",
   address: "Meppadi - Chooralmala Road, Vythiri Taluk, Wayanad, Kerala 673577",
   whatsappNumber: "918606411892", // country code + number, digits only (no +)
   phoneDisplay: "+91 86064 11892",
@@ -61,7 +60,6 @@ const RESORT_CONFIG = {
     forest: "#163024",
     forestLight: "#234736",
     gold: "#C88A55",
-    goldHover: "#B57743",
     alabaster: "#FAF8F5",
     sand: "#F1EDE6",
     charcoal: "#1C1C1C"
@@ -99,7 +97,8 @@ const RESORT_CONFIG = {
       title: "Packages & Contact | Vana Mist Resort Wayanad",
       description: "Honeymoon and family packages, directions and direct reservations at Vana Mist Resort.",
       eyebrow: "Curated Escapes & Directions",
-      heading: "Packages & Reservations"
+      heading: "Packages & Reservations",
+      packagesHeading: "Seasonal & Honeymoon Packages" // heading above the packages (the section hides itself if packages is empty)
     },
     policies: {
       title: "Policies & Privacy | Vana Mist Resort Wayanad",
@@ -120,7 +119,7 @@ const RESORT_CONFIG = {
   },
 
   // DEMO: use real figures or set show:false. Never publish invented ratings.
-  rating: { show: true, score: "4.9", reviews: "480+", source: "Google" },
+  rating: { show: true, score: "4.9" },
 
   // Home: strip under the hero. Any number of items (3-4 looks best)
   trustBar: [
